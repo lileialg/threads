@@ -1,0 +1,62 @@
+package com.threads;
+
+public class DaemonThread {
+
+
+	/**
+	 *  Daemon的作用是为其他线程的运行提供服务，
+	 *  比如说GC线程。
+	 *  其实User Thread线程和Daemon Thread守护线程本质上来说去没啥区别的，
+	 *  唯一的区别之处就在虚拟机的离开：如果User Thread全部撤离，
+	 *  那么Daemon Thread也就没啥线程好服务的了，所以虚拟机也就退出了
+	 *  
+	 * @param args
+	 */
+	
+	public static class Counter implements Runnable{
+		
+		public void run(){
+			
+			
+			int num = 0;
+			
+			while(true){
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				num++;
+			}
+			
+			
+		}
+		
+	}
+	
+	
+	public static void main(String[] args) {
+
+		Thread t = new Thread(new Counter());
+		
+		/**
+		 * 如果不设置t.setDaemon(true),
+		 * 程序不会终止
+		 * 并且，设置守护线程，要在start之前
+		 */
+		
+		t.setDaemon(true);
+		
+		t.start();
+		
+		
+		
+		
+		for(int i=0;i<1000;i++){
+			System.out.println(i);
+		}
+		
+	}
+
+}
