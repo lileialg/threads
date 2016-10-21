@@ -1,0 +1,111 @@
+对象的共享
+
+1、可见性：
+	1、失效数据：在缺乏同步程序可能产生错误的结果
+	2、非原子64位操作：对于非volatile类型的long和double变量，jvm允许将64位的读或写操作分解成两个32位的操作；
+	   当读取一个非volatile类型的long或double变量时，如果对该变量的读和写操作在不同的线程中执行，那么很可能
+	   会读取到某个值的高32位和另一个值的低32位。
+	3、加锁与可见性：加锁的含义不仅仅局限于互斥行为，还包括内存可见性，为了确保所有线程都能看到共享表里的最新值
+	   ，所有执行读或写操作的线程都必须在同一个锁上同步。
+	4、volatile：加锁机制既可以确保可见性又可以确保原子性，而volatile变量只能确保可见性
+	
+	
+2、发布与逸出：
+	发布：使对象能够在当前作用域之外的代码中使用
+	逸出：不应该发布的对象被发布
+	
+	逸出例子：
+	public static List<String> list;
+	public void init(){
+		list = new ArrayList<String>();
+	}
+	
+	private static int[] array =new int[]{1,2,3};
+	public int[] getArray(){return array;}
+	
+	构造函数逸出
+	public class NotSafePublish {
+	
+	private int value;
+	
+	public NotSafePublish(){
+		
+		Thread t1 = new Thread(new Inner(this));
+		
+		t1.start();
+		
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		this.value = 1000;
+		
+	}
+	
+	
+	public int getValue() {
+		return value;
+	}
+
+	public void setValue(int value) {
+		this.value = value;
+	}
+
+	public static class Inner implements Runnable{
+		
+		private NotSafePublish nsp;
+		
+		public Inner(NotSafePublish nsp){
+			this.nsp = nsp;
+		}
+		
+		
+		public void run() {
+			
+			System.out.println(nsp.getValue());
+			
+		};
+		
+	}
+
+		/**
+		 * @param args
+		 */
+		public static void main(String[] args) {
+			// TODO Auto-generated method stub
+
+			
+			NotSafePublish nsp = new NotSafePublish();
+		}
+
+	}
+	
+
+3、线程封闭：
+	定义：如果仅在单线程内访问数据，就不需要同步
+	栈封闭：局部变量
+	theradlocal:当使用ThreadLocal维护变量时，
+	 * ThreadLocal为每个使用该变量的线程提供独立的变量副本，
+	 * 所以每一个线程都可以独立地改变自己的副本，
+	 * 而不会影响其它线程所对应的副本。
+	 
+	 
+4、不变性：final
+
+5、安全发布：
+	1、静态初始化函数初始化一个对象引用
+	2、volatile或者atomicreference
+	3、final
+	4、锁保护
+	
+	
+	线程安全库：
+	Hashtable、Collections.synchronizedMap、ConcurrentMap
+	Vector、CopyOnWriteArrayList、CopyOnWriteArraySet、Collections.synchronizedList、Collections.synchronizedSet
+	BlockingQueue、ConcurrentLinkedQueue
+	数据传递：Future Exchanger
+	
