@@ -1,0 +1,64 @@
+package com.threads;
+
+import java.util.Iterator;
+import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class Test7 {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+
+		final Vector<Integer> v = new Vector<Integer>();
+
+		v.add(23);
+
+		v.add(24);
+
+		ExecutorService exec = Executors.newFixedThreadPool(2);
+
+		exec.execute(new Runnable() {
+
+			public void run() {
+
+				Iterator<Integer> it = v.iterator();
+
+				while (it.hasNext()) {
+
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					it.next();
+
+				}
+			}
+		});
+
+		exec.execute(new Runnable() {
+
+			public void run() {
+				// TODO Auto-generated method stub
+				int last = v.size() - 1;
+
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				v.remove(last);
+			}
+		});
+
+		exec.shutdown();
+
+	}
+}

@@ -1,0 +1,68 @@
+package com.threads;
+
+import java.util.Random;
+import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class Test7 {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+
+
+		final Vector<Integer> list = new Vector<Integer>();
+
+		final CountDownLatch latch = new CountDownLatch(49);
+
+		ExecutorService exec = Executors.newFixedThreadPool(50);
+
+		for (int i = 0; i < 49; i++) {
+
+			exec.execute(new Runnable() {
+
+				// 生产者
+				public void run() {
+
+						// TODO Auto-generated method stub
+						try {
+
+							Thread.sleep(11);
+
+							list.add(new Random().nextInt(9999));
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} finally {
+							latch.countDown();
+						}
+					}
+			});
+
+		}
+		
+		
+		exec.execute(new Runnable() {
+
+			// 生产者
+			public void run() {
+
+					// TODO Auto-generated method stub
+					try {
+
+						latch.await();
+
+						System.out.println(list.size());
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+			}
+		});
+
+		exec.shutdown();
+	}
+}

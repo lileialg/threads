@@ -1,0 +1,58 @@
+package com.threads;
+
+import java.util.concurrent.Exchanger;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class Test7 {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+
+		final Exchanger<String> ex = new Exchanger<String>();
+
+		ExecutorService exec = Executors.newFixedThreadPool(2);
+
+		exec.execute(new Runnable() {
+
+			// 生产者
+			public void run() {
+				int v = 0;
+				while (true) {
+					// TODO Auto-generated method stub
+					try {
+						Thread.sleep(1000);
+						
+						ex.exchange("货物" + (++v));
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+
+		exec.execute(new Runnable() {
+
+			// 消费者
+			public void run() {
+				while (true) {
+					// TODO Auto-generated method stub
+					try {
+						String str = null;
+						str = ex.exchange(str);
+
+						System.out.println(str);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+
+		exec.shutdown();
+	}
+}

@@ -1,0 +1,32 @@
+基础构建模块：
+
+1、同步容器类
+	1、早期：Vector、Hashtable
+		可能出现的问题：ArrayIndexOutOfBoundsException、迭代器ConcurrentModificationException、Collections.synchronizedList、Collections.synchronizedMap、Collections.synchronizedSet
+
+2、并发容器
+	jdk1.5：ConcurrentHashMap、ConcurrentLinkedDeque、CopyOnWriteArrayList、CopyOnWriteArraySet、ArrayBlockingQueue、LinkedBlockingQueue
+	
+	
+	1、ConcurrentMap:
+	判断不存在添加：putIfAbsent
+	
+	ConcurrentHashMap：采用分段锁提供更好的并发性和伸缩性
+	缺点：有时会拿不到最新的数据
+	
+	2、CopyOnWriteArrayList：在某些方面比List提供更好的并发性能，并且在迭代期间不需要对容器加锁和复制：
+	在每次修改时，都会创建并重新发布一个新的容器副本。
+	
+3、阻塞队列：生产者-消费者 put 和 take
+	put :如果队列已满，则put将阻塞直到有空间可用
+	take：如果队列为空，take会阻塞指导有元素可用
+	
+4、同步工具类：
+	1、Semaphore信号量：当前在多线程环境下被扩放使用，操作系统的信号量是个很重要的概念，在进程控制方面都有应用。Java 并发库 的Semaphore 可以很轻松完成信号量控制，Semaphore可以控制某个资源可被同时访问的个数，通过 acquire() 获取一个许可，如果没有就等待，而 release() 释放一个许可。比如在Windows下可以设置共享文件的最大客户端访问个数。 
+	
+	2、CyclicBarrier栅栏：一个同步辅助类，它允许一组线程互相等待，直到到达某个公共屏障点 (common barrier point)。在涉及一组固定大小的线程的程序中，这些线程必须不时地互相等待，此时 CyclicBarrier 很有用。因为该 barrier 在释放等待线程后可以重用，所以称它为循环 的 barrier
+	
+	3、CountDownLatch闭锁：利用它可以实现类似计数器的功能。比如有一个任务A，它要等待其他4个任务执行完毕之后才能执行，此时就可以利用CountDownLatch来实现这种功能
+	4、Exchanger：Exchanger可以在两个线程之间交换数据，只能是2个线程，不支持更多的线程之间互换数据。当线程A调用Exchange对象的exchange()方法后，他会陷入阻塞状态，直到线程B也调用了exchange()方法，然后以线程安全的方式交换数据，之后线程A和B继续运行
+		
+	

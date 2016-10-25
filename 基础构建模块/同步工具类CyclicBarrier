@@ -1,0 +1,66 @@
+package com.threads;
+
+import java.util.Random;
+import java.util.Vector;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class Test7 {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+
+
+		final Vector<Integer> list = new Vector<Integer>();
+
+		final CyclicBarrier cb = new CyclicBarrier(49,new Runnable(){
+			public void run() {
+				// TODO Auto-generated method stub
+			
+				System.out.println("list size:"+list.size());
+			}
+			
+		});
+
+		ExecutorService exec = Executors.newFixedThreadPool(50);
+
+		for (int i = 0; i < 49; i++) {
+
+			exec.execute(new Runnable() {
+
+				// Éú²úÕß
+				public void run() {
+
+						// TODO Auto-generated method stub
+						try {
+
+							Thread.sleep(11);
+							
+							
+
+							list.add(new Random().nextInt(9999));
+							
+							try {
+								cb.await();
+							} catch (BrokenBarrierException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+			});
+
+		}
+		
+		
+
+		exec.shutdown();
+	}
+}
