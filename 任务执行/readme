@@ -1,0 +1,59 @@
+任务执行
+1、线程中执行任务
+	1、串行执行任务：服务器资源利用率低
+	2、显示的无节制的创建线程：
+		1、线程生命周期开销高
+		2、资源消耗：线程活跃
+		3、稳定性：平台的不同，线程限制数也不同
+		
+		
+2、Executor框架
+	1、重用线程，可以处理多个请求时分摊在线程创建和销毁过程中产生的开销
+	2、方式：
+		1、newFixedThreadPool ：工厂方法
+		2、newCacheThreadPool ：工厂方法
+		3、newSingleThreadExecutor
+		4、newScheduledThreadPool
+		
+	3、生命周期：运行、关闭、已终止
+		平滑关闭：shutdown
+		强制关闭：shutdownNow
+		非阻塞查看是否终止：isTerminal
+		阻塞查看是否终止：awaitTerminal
+		
+		Callable一般是和ExecutorService配合来使用的
+		Future就是对于具体的Runnable或者Callable任务的执行结果进行取消、查询是否完成、获取结果。必要时可以通过get方法获取执行结果，该方法会阻塞直到任务返回结果
+		
+		RunnableFuture继承了Runnable接口和Future接口，而FutureTask实现了RunnableFuture接口。所以它既可以作为Runnable被线程执行，又可以作为Future得到Callable的返回值
+		
+	4、延迟任务与周期任务：
+		Timer：缺点：1、单线程 2、时间依赖 3、异常 4、无返回值
+		替代方案：ScheduledExecutorService  newScheduledThreadPool
+		
+		public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,  
+            long initialDelay,  
+            long period,  
+            TimeUnit unit);  
+			
+		command：执行线程
+		initialDelay：初始化延时
+		period：两次开始执行最小间隔时间
+		unit：计时单位
+		
+		public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,  
+                long initialDelay,  
+                long delay,  
+                TimeUnit unit);  
+		command：执行线程
+		initialDelay：初始化延时
+		period：前一次执行结束到下一次执行开始的间隔时间（间隔执行延迟时间）
+		unit：计时单位
+		
+		
+	5、使用CompletionService来维护处理线程不的返回结果时，主线程总是能够拿到最先完成的任务的返回值，而不管它们加入线程池的顺序
+	
+	6、ExecutorService的invokeAll方法有两种用法：
+		1.exec.invokeAll(tasks)
+		2.exec.invokeAll(tasks, timeout, unit)
+		其中tasks是任务集合，timeout是超时时间，unit是时间单位
+		两者都会堵塞，必须等待所有的任务执行完成后统一返回，一方面内存持有的时间长；另一方面响应性也有一定的影响
