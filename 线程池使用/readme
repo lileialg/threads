@@ -1,0 +1,67 @@
+线程池使用：
+1、线程池使得客户端任务的提交和任务的执行解耦，但有以下两点问题：
+	1、线程饥饿死锁：大量线程等待其他线程
+	2、执行时间较长的线程
+	
+2、设置线程池的大小：一般规律：处理器个数+1（Runtime.getRuntime().availableProcessors()）
+	参考点：CPU、内存、文件句柄、IO、数据库连接等
+	
+3、配置ThreadPoolExecutor
+	1、默认提供的4种Executors工厂方法创建线程池方式：
+		1、newFixedThreadPool  ---无界的LinkedBlockingQueue
+		2、newCachedThreadPool  --SynchronousQueue
+		3、newSingleThreadPool ---无界的LinkedBlockingQueue
+		4、newScheduledThreadPool  --DelayedWorkQueue
+		
+	2、自定义线程池ThreadPoolExecutor
+	ThreadPoolExecutor(int corePoolSize,  
+                              int maximumPoolSize,  
+                              long keepAliveTime,  
+                              TimeUnit unit,  
+                              BlockingQueue<Runnable> workQueue,  
+                              ThreadFactory threadFactory,  
+                              RejectedExecutionHandler handler) 
+							  
+	corePoolSize	核心线程池大小
+	maximumPoolSize	最大线程池大小
+	keepAliveTime	线程池中超过corePoolSize数目的空闲线程最大存活时间；可以allowCoreThreadTimeOut(true)使得核心线程有效时间
+	TimeUnit	keepAliveTime时间单位
+	workQueue	阻塞任务队列
+	threadFactory	新建线程工厂
+	RejectedExecutionHandler	当提交任务数超过maxmumPoolSize+workQueue之和时，任务会交给RejectedExecutionHandler来处理
+	
+	1.当线程池小于corePoolSize时，新提交任务将创建一个新线程执行任务，即使此时线程池中存在空闲线程。 
+	2.当线程池达到corePoolSize时，新提交任务将被放入workQueue中，等待线程池中任务调度执行 
+	3.当workQueue已满，且maximumPoolSize>corePoolSize时，新提交任务会创建新线程执行任务 
+	4.当提交任务数超过maximumPoolSize时，新提交任务由RejectedExecutionHandler处理 
+	5.当线程池中超过corePoolSize线程，空闲时间达到keepAliveTime时，关闭空闲线程 
+	6.当设置allowCoreThreadTimeOut(true)时，线程池中corePoolSize线程空闲时间达到keepAliveTime也将关闭 
+	
+	
+	
+	
+SynchronousQueue：
+	Java 6的并发编程包中的SynchronousQueue是一个没有数据缓冲的BlockingQueue，生产者线程对其的插入操作put必须等待消费者的移除操作take，反过来也一样。
+
+不像ArrayBlockingQueue或LinkedListBlockingQueue，SynchronousQueue内部并没有数据缓存空间，你不能调用peek()方法来看队列中是否有数据元素，因为数据元素只有当你试着取走的时候才可能存在，不取走而只想偷窥一下是不行的，当然遍历这个队列的操作也是不允许的。队列头元素是第一个排队要插入数据的线程，而不是要交换的数据。数据是在配对的生产者和消费者线程之间直接传递的，并不会将数据缓冲数据到队列中。可以这样来理解：生产者和消费者互相等待对方，握手，然后一起离开。
+
+SynchronousQueue的一个使用场景是在线程池里。Executors.newCachedThreadPool()就使用了SynchronousQueue，这个线程池根据需要（新任务到来时）创建新的线程，如果有空闲线程则会重复使用，线程空闲了60秒后会被回收。
+
+
+
+RejectedExecutionHandler：
+当我们创建线程池并且提交任务失败时，线程池会回调RejectedExecutionHandler接口的rejectedExecution(Runnable task, ThreadPoolExecutor executor)方法来处理线程池处理失败的任务，其中task 是用户提交的任务
+
+	ThreadPoolExecutor.AbortPolicy()抛出java.util.concurrent.RejectedExecutionException异常 终止策略是默认的饱和策略；
+
+	ThreadPoolExecutor.CallerRunsPolicy()当抛出RejectedExecutionException异常时，会调rejectedExecution方法 调用者运行策略实现了一种调节机制，该策略既不会抛弃任务也不会爆出异常，而是将任务退回给调用者，从而降低新任务的流量
+
+	ThreadPoolExecutor.DiscardOldestPolicy()抛弃旧的任务；当新提交的任务无法保存到队列中等待执行时将抛弃最旧的任务，然后尝试提交新任务。
+
+	ThreadPoolExecutor.DiscardPolicy()抛弃当前的任务
+	
+	
+	
+PriorityBlockingQueue：
+PriorityBlockingQueue里面存储的对象必须是实现Comparable接口。队列通过这个接口的compare方法确定对象的priority。 
+规则是：当前和其他对象比较，如果compare方法返回负数，那么在队列里面的优先级就比较搞。
